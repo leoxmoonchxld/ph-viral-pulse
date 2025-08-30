@@ -33,13 +33,7 @@
 </head>
 <body class="antialiased">
     <!-- Chosen Palette: Warm Neutrals (Paper White, Taupe) with a Calming Blue accent -->
-    <!-- Application Structure Plan: A thematic, single-page dashboard structure is used to categorize viral issues into 'Politics', 'Social Issues', and 'Pop Culture'. This design allows users to quickly navigate to topics of interest via a sticky header, rather than following a rigid, linear narrative. The goal is user-driven exploration. Key interactions include a toggleable chart for comparing public sentiment on political issues and a card-based layout for digestible case studies, optimizing for clarity and engagement. -->
-    <!-- Visualization & Content Choices: 
-        1. Political Issues -> Goal: Compare public sentiment -> Viz: Interactive Horizontal Bar Chart (Chart.js/Canvas) -> Interaction: Buttons to switch datasets between different political topics -> Justification: Allows direct, user-controlled comparison of nuanced data, enhancing understanding of public opinion.
-        2. Social Controversies -> Goal: Inform/Organize distinct events -> Viz: Grid of summary cards (HTML/Tailwind) -> Interaction: Hover effects for feedback -> Justification: Breaks down complex individual stories into easily scannable and understandable blocks.
-        3. Pop Culture Trends -> Goal: Organize varied qualitative info -> Viz: Multi-column text and icon layout (HTML/Tailwind) -> Interaction: Minimal, focus on readability -> Justification: Best for presenting diverse, non-numeric cultural phenomena clearly.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- Application Structure Plan... [truncated for brevity, see original] -->
 
     <div id="app" class="min-h-screen">
         <header class="bg-white/80 backdrop-blur-md shadow-sm fixed top-0 left-0 right-0 z-50">
@@ -49,9 +43,9 @@
                         <h1 class="text-xl font-bold text-gray-800">🇵🇭 The Philippines Viral Pulse</h1>
                     </div>
                     <nav id="main-nav" class="hidden md:flex items-center space-x-4">
-                        <button data-target="politics" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Political Arena</button>
-                        <button data-target="social" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Society's Mirror</button>
-                        <button data-target="culture" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Pop Culture Wave</button>
+                        <button type="button" data-target="politics" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Political Arena</button>
+                        <button type="button" data-target="social" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Society's Mirror</button>
+                        <button type="button" data-target="culture" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Pop Culture Wave</button>
                     </nav>
                 </div>
             </div>
@@ -75,8 +69,8 @@
                                     <p>Tensions in the West Philippine Sea have also remained a flashpoint, with diplomatic protests and civilian-led supply missions becoming viral topics. Public sentiment is a crucial factor shaping the government's foreign policy and national security strategies.</p>
                                 </div>
                                 <div class="mt-6 flex flex-wrap gap-3">
-                                    <button id="btn-rift" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-transform transform hover:scale-105">Marcos-Duterte Rift</button>
-                                    <button id="btn-wps" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-transform transform hover:scale-105">West Philippine Sea</button>
+                                    <button type="button" id="btn-rift" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-transform transform hover:scale-105">Marcos-Duterte Rift</button>
+                                    <button type="button" id="btn-wps" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-transform transform hover:scale-105">West Philippine Sea</button>
                                 </div>
                             </div>
                             <div class="chart-container">
@@ -204,11 +198,11 @@
 
             const createOrUpdateChart = (topic) => {
                 const topicData = sentimentData[topic];
-                
+
                 if (sentimentChart) {
                     sentimentChart.data.labels = topicData.labels;
                     sentimentChart.data.datasets[0].data = topicData.data;
-                    sentimentChart.options.plugins.tooltip.title = topicData.title;
+                    sentimentChart.options.plugins.title.text = topicData.title;
                     sentimentChart.update();
                 } else {
                     const ctx = document.getElementById('sentimentChart').getContext('2d');
@@ -244,6 +238,9 @@
                                 legend: {
                                     display: false
                                 },
+                                title: {
+                                    display: false // Title is handled above the chart
+                                },
                                 tooltip: {
                                     callbacks: {
                                         label: function(context) {
@@ -278,30 +275,30 @@
                     });
                 }
             };
-            
+
             const updateUI = (topic) => {
                 const topicData = sentimentData[topic];
                 politicalTopicTitle.textContent = topicData.title;
                 createOrUpdateChart(topic);
-                
+
                 if (topic === 'rift') {
                     btnRift.classList.remove('bg-gray-200', 'text-gray-800');
                     btnRift.classList.add('bg-blue-600', 'text-white');
-                    btnWps.classList.add('bg-gray-200', 'text-gray-800');
                     btnWps.classList.remove('bg-blue-600', 'text-white');
+                    btnWps.classList.add('bg-gray-200', 'text-gray-800');
                 } else {
                     btnWps.classList.remove('bg-gray-200', 'text-gray-800');
                     btnWps.classList.add('bg-blue-600', 'text-white');
-                    btnRift.classList.add('bg-gray-200', 'text-gray-800');
                     btnRift.classList.remove('bg-blue-600', 'text-white');
+                    btnRift.classList.add('bg-gray-200', 'text-gray-800');
                 }
             };
-            
+
             btnRift.addEventListener('click', () => updateUI('rift'));
             btnWps.addEventListener('click', () => updateUI('wps'));
-            
+
             updateUI('rift');
-            
+
             const nav = document.getElementById('main-nav');
             nav.addEventListener('click', (e) => {
                 if (e.target.tagName === 'BUTTON') {
