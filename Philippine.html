@@ -197,87 +197,92 @@
                 }
             };
 
-            let sentimentChart;
-
-            const createChart = (data) => {
-                const ctx = document.getElementById('sentimentChart').getContext('2d');
-                if (sentimentChart) {
-                    sentimentChart.destroy();
-                }
-
-                sentimentChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.labels,
-                        datasets: [{
-                            label: 'Public Sentiment (%)',
-                            data: data.data,
-                            backgroundColor: [
-                                'rgba(59, 130, 246, 0.7)',
-                                'rgba(251, 146, 60, 0.7)',
-                                'rgba(239, 68, 68, 0.7)',
-                                'rgba(16, 185, 129, 0.7)',
-                                'rgba(139, 92, 246, 0.7)',
-                            ],
-                            borderColor: [
-                                'rgba(59, 130, 246, 1)',
-                                'rgba(251, 146, 60, 1)',
-                                'rgba(239, 68, 68, 1)',
-                                'rgba(16, 185, 129, 1)',
-                                'rgba(139, 92, 246, 1)',
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `${context.label}: ${context.raw}%`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Percentage of Online Discussion'
-                                }
-                            },
-                            y: {
-                                ticks: {
-                                    autoSkip: false,
-                                    callback: function(value) {
-                                        const label = this.getLabelForValue(value);
-                                        if (label.length > 20) {
-                                            return label.substring(0, 20) + '...';
-                                        }
-                                        return label;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            };
-            
+            let sentimentChart = null;
             const politicalTopicTitle = document.getElementById('political-topic-title');
             const btnRift = document.getElementById('btn-rift');
             const btnWps = document.getElementById('btn-wps');
 
-            const updateChart = (topic) => {
+            const createOrUpdateChart = (topic) => {
+                const topicData = sentimentData[topic];
+                
+                if (sentimentChart) {
+                    sentimentChart.data.labels = topicData.labels;
+                    sentimentChart.data.datasets[0].data = topicData.data;
+                    sentimentChart.options.plugins.tooltip.title = topicData.title;
+                    sentimentChart.update();
+                } else {
+                    const ctx = document.getElementById('sentimentChart').getContext('2d');
+                    sentimentChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: topicData.labels,
+                            datasets: [{
+                                label: 'Public Sentiment (%)',
+                                data: topicData.data,
+                                backgroundColor: [
+                                    'rgba(59, 130, 246, 0.7)',
+                                    'rgba(251, 146, 60, 0.7)',
+                                    'rgba(239, 68, 68, 0.7)',
+                                    'rgba(16, 185, 129, 0.7)',
+                                    'rgba(139, 92, 246, 0.7)',
+                                ],
+                                borderColor: [
+                                    'rgba(59, 130, 246, 1)',
+                                    'rgba(251, 146, 60, 1)',
+                                    'rgba(239, 68, 68, 1)',
+                                    'rgba(16, 185, 129, 1)',
+                                    'rgba(139, 92, 246, 1)',
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.label}: ${context.raw}%`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    title: {
+                                        display: true,
+                                        text: 'Percentage of Online Discussion'
+                                    }
+                                },
+                                y: {
+                                    ticks: {
+                                        autoSkip: false,
+                                        callback: function(value) {
+                                            const label = this.getLabelForValue(value);
+                                            if (label.length > 20) {
+                                                return label.substring(0, 20) + '...';
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            };
+            
+            const updateUI = (topic) => {
                 const topicData = sentimentData[topic];
                 politicalTopicTitle.textContent = topicData.title;
-                createChart(topicData);
+                createOrUpdateChart(topic);
                 
                 if (topic === 'rift') {
                     btnRift.classList.remove('bg-gray-200', 'text-gray-800');
@@ -292,10 +297,10 @@
                 }
             };
             
-            btnRift.addEventListener('click', () => updateChart('rift'));
-            btnWps.addEventListener('click', () => updateChart('wps'));
+            btnRift.addEventListener('click', () => updateUI('rift'));
+            btnWps.addEventListener('click', () => updateUI('wps'));
             
-            updateChart('rift');
+            updateUI('rift');
             
             const nav = document.getElementById('main-nav');
             nav.addEventListener('click', (e) => {
